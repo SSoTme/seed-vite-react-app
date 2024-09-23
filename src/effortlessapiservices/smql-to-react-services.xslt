@@ -19,34 +19,37 @@
                 <xsl:for-each select="/*/SMQActors/SMQActor"><xsl:variable name="actor" select="."/>
                     <FileSetFile>
                         <RelativePath>
-                            <xsl:value-of select="concat(Name, 'Service.js')"/>
+                            <xsl:value-of select="concat(Name, 'Service.tsx')"/>
                         </RelativePath>
                         <xsl:element name="FileContents" xml:space="preserve">
 import BaseService from './BaseService';
 
-class <xsl:value-of select="concat(Name, 'Service')"/> extends BaseService {
-    <xsl:for-each select="ActorCanSay/SMQMessageKey"><xsl:for-each select="/*/SMQMessages/SMQMessage[SMQMessageKey=current()]">
-        <xsl:variable name="msg" select="."/><xsl:variable name="od" select="$odxml//ObjectDefs/ObjectDef[Name = $msg/RAWValues/Response or Name = $msg/RAWValues/Payload]" />
-    <xsl:choose>
-    <xsl:when test="$msg/RAWValues/Category='Custom'">
+<xsl:for-each select="$odxml//ObjectDefs/ObjectDef">import { <xsl:value-of select="Name" /> } from '../models/<xsl:value-of select="Name" />';
+</xsl:for-each>
+
+
+
+class <xsl:value-of select="concat(Name, 'Service')"/> extends BaseService {<xsl:for-each select="ActorCanSay/SMQMessageKey"><xsl:for-each select="/*/SMQMessages/SMQMessage[SMQMessageKey=current()]"><xsl:variable name="msg" select="."/><xsl:variable name="od" select="$odxml//ObjectDefs/ObjectDef[Name = $msg/RAWValues/Response or Name = $msg/RAWValues/Payload]" /><xsl:choose xml:space="default"><xsl:when test="$msg/RAWValues/Category='Custom'">
     async <xsl:value-of select="$msg/Name" />(payload) { 
-        return this.apiCall("POST", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$msg/Name" />", null, payload); // <xsl:value-of select="$od/Name"/></xsl:when>
+        return this.apiCall("POST", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$msg/Name" />", null, payload); // <xsl:value-of select="$od/Name"/>
+    }</xsl:when>
     <xsl:when test="$msg/RAWValues/Category='CRUD' and substring($msg/Name, 1, 3) = 'Get'">
-    async <xsl:value-of select="$msg/Name" />(view) { 
-        return this.apiCall("GET", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/PluralName" />", view, null); // <xsl:value-of select="$od/Name"/></xsl:when>
+    async <xsl:value-of select="$msg/Name" />(view:string = "") : Promise&lt;<xsl:value-of select="$od/Name"/>[]&gt; { 
+        return this.apiCall("GET", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/PluralName" />", view, null); // <xsl:value-of select="$od/Name"/>
+    }</xsl:when>
     <xsl:when test="$msg/RAWValues/Category='CRUD' and substring($msg/Name, 1, 3) = 'Add'">
-    async <xsl:value-of select="$msg/Name" />(<xsl:value-of select="$od/Name"/>) { 
-        return this.apiCall("POST", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/Name" />", null, <xsl:value-of select="$od/Name"/>); // <xsl:value-of select="$od/Name"/></xsl:when>
+    async <xsl:value-of select="$msg/Name" />(payload: <xsl:value-of select="$od/Name"/>) : Promise&lt;<xsl:value-of select="$od/Name"/>&gt; { 
+        return this.apiCall("POST", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/Name" />", "", payload as any); // <xsl:value-of select="$od/Name"/>
+    }</xsl:when>
     <xsl:when test="$msg/RAWValues/Category='CRUD' and substring($msg/Name, 1, 6) = 'Update'">
-    async <xsl:value-of select="$msg/Name" />(<xsl:value-of select="$od/Name"/>) {
-        return this.apiCall("PUT", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/Name" />", null, <xsl:value-of select="$od/Name"/>); // <xsl:value-of select="$od/Name"/></xsl:when>
+    async <xsl:value-of select="$msg/Name" />(payload: <xsl:value-of select="$od/Name"/>) : Promise&lt;<xsl:value-of select="$od/Name"/>&gt; {
+        return this.apiCall("PUT", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/Name" />", "", payload as any); // <xsl:value-of select="$od/Name"/>
+    }</xsl:when>
     <xsl:when test="$msg/RAWValues/Category='CRUD' and substring($msg/Name, 1, 6) = 'Delete'">
-    async <xsl:value-of select="$msg/Name" />(id) { 
-        return this.apiCall("DELETE", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/Name" />", null, id); // <xsl:value-of select="$od/Name"/></xsl:when>
-</xsl:choose>
-   }
-    
-    </xsl:for-each></xsl:for-each>
+    async <xsl:value-of select="$msg/Name" />(id:string) { 
+        return this.apiCall("DELETE", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/Name" />", "", id as any); // <xsl:value-of select="$od/Name"/>
+    }</xsl:when>
+</xsl:choose></xsl:for-each></xsl:for-each>
 }
 
 export default new <xsl:value-of select="concat(Name, 'Service')"/>();                        </xsl:element>
@@ -54,14 +57,15 @@ export default new <xsl:value-of select="concat(Name, 'Service')"/>();          
                 </xsl:for-each>
                 <FileSetFile>
                     <RelativePath>
-                        <xsl:text>BaseService.js</xsl:text>
+                        <xsl:text>BaseService.tsx</xsl:text>
                     </RelativePath>
                     <xsl:element name="FileContents" xml:space="preserve">// services/BaseService.js
 class BaseService {
-    async apiCall(method = "GET", controller = "User", endpoint = "AppUsers", view = "Grid%20view", payload = null, airtableWhere) {
+    async apiCall(method = "GET", controller = "User", endpoint = "AppUsers", view = "Grid%20view", payload = null, airtableWhere = "") {
       try {
+        console.error('API CALL', method, controller, endpoint, view, payload, airtableWhere);
         const token = localStorage.getItem("access_token");
-        if (!token &amp;&amp; endpoint !== "exchange") {
+        if (!token &amp;&amp; (endpoint !== "exchange" &amp;&amp; controller !== "Guest")) {
           return null;
         }
   
@@ -78,6 +82,8 @@ class BaseService {
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
           body: payload ? JSON.stringify(payload) : null,
         });
+
+        console.error('RESPONSE', response);  
   
         if (!response.ok) {
           throw new Error(`Failed to ${method} ${endpoint} ${JSON.stringify(response)}`);
@@ -91,6 +97,8 @@ class BaseService {
   }
   
   export default BaseService;
+  
+
   
 </xsl:element>
                 </FileSetFile>
