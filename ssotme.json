@@ -17,7 +17,7 @@
       "IsSSoTTranspiler": false,
       "Name": "XmlXsltTransform",
       "RelativePath": "/src/effortlessapiservices",
-      "CommandLine": "xml-xslt-transform -i ..\\..\\..\\SMQL\\SassyMQLexicon.smql -i .\\smql-to-react-services.xslt -i ..\\..\\..\\ODXML\\DataSchema.odxml"
+      "CommandLine": "xml-xslt-transform -i ../../../SMQL/SassyMQLexicon.smql -i ./smql-to-react-services.xslt -i ../../../ODXML/DataSchema.odxml"
     },
     {
       "MatchedTranspiler": {
@@ -27,7 +27,7 @@
       "IsSSoTTranspiler": false,
       "Name": "OdxmlToTypeScriptModels",
       "RelativePath": "/src/models",
-      "CommandLine": "odxml42/odxml-to-typescript-models -i ..\\..\\..\\ODXML\\DataSchema.odxml"
+      "CommandLine": "odxml42/odxml-to-typescript-models -i ../../../ODXML/DataSchema.odxml"
     }
   ]
 }
