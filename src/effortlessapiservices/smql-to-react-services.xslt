@@ -39,9 +39,9 @@ class <xsl:value-of select="concat(Name, 'Service')"/> extends BaseService {
         return this.apiCall("GET", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/PluralName" />", view, null, airtableWhere, null); // <xsl:value-of select="$od/Name"/>
     }        
     async Get<xsl:value-of select="$od/Name" />(id:string)  : Promise&lt;<xsl:value-of select="$od/Name"/>|null&gt; { 
-        var influencers : any = await this.apiCall("GET", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/PluralName" />", null, null, "RECORD_ID()='" + id + "'", null); // <xsl:value-of select="$od/Name"/>
-        if (!influencers || (influencers.length == 0)) return null;
-        return influencers[0];
+        var db<xsl:value-of select="$od/PluralName" /> : any = await this.apiCall("GET", "<xsl:value-of select="$actor/Name"/>", "<xsl:value-of select="$od/PluralName" />", null, null, "RECORD_ID()='" + id + "'", null); // <xsl:value-of select="$od/Name"/>
+        if (!db<xsl:value-of select="$od/PluralName" /> || (db<xsl:value-of select="$od/PluralName" />.length == 0)) return null;
+        return db<xsl:value-of select="$od/PluralName" />[0];
         </xsl:when>
     <xsl:when test="$msg/RAWValues/Category='CRUD' and substring($msg/Name, 1, 3) = 'Add'">
     async <xsl:value-of select="$msg/Name" />(<xsl:value-of select="$od/Name"/>:<xsl:value-of select="$od/Name"/>) : Promise&lt;<xsl:value-of select="$od/Name"/>&gt;  { 
@@ -75,11 +75,11 @@ class BaseService {
         var url;
         view = view ? `&amp;view=${view}` : '';
         if (params) {
-            url = `https://chateau-avalon.ssot.me:42019/${controller}/${endpoint}?${params}${airtableWhere}`;
+            url = `https://localhost:42123/${controller}/${endpoint}?${params}${airtableWhere}`;
         } else {
-            url = `https://chateau-avalon.ssot.me:42019/${controller}/${endpoint}?${view}${airtableWhere}`;
+            url = `https://localhost:42123/${controller}/${endpoint}?${view}${airtableWhere}`;
             if (method == "DELETE") {
-                url = `https://chateau-avalon.ssot.me:42019/${controller}/${endpoint}?id=${payload}`;
+                url = `https://localhost:42123/${controller}/${endpoint}?id=${payload}`;
             } 
         }
 
